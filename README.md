@@ -23,7 +23,7 @@ Install this project with npm !
 ```js
 import { TicketyClient } from "tickety"
 // or
-const { TicketyClient } = require "tickety"
+const { TicketyClient } = require("tickety")
 
 const tickety = new TicketyClient({ port: 3000 }) // 3000 is default, you can set it to whatever you want !
 
