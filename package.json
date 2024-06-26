@@ -1,0 +1,23 @@
+{
+  "name": "tickety-api",
+  "version": "1.0.1",
+  "description": "A wrapper for tickety's post api !",
+  "main": "./build/index.js",
+  "module": "./build/index.mjs",
+  "types": "./build/index.d.ts",
+  "exports": {
+    "types": "./build/index.d.ts",
+    "import": "./build/index.mjs",
+    "require": "./build/index.js"
+  },
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "author": "OxyToan",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "tiny-typed-emitter": "^2.1.0"
+  }
+}
