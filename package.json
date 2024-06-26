@@ -1,6 +1,6 @@
 {
   "name": "tickety-api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A wrapper for tickety's post api !",
   "main": "./build/index.js",
   "module": "./build/index.mjs",
