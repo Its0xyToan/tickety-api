@@ -2,6 +2,7 @@
   "name": "tickety-api",
   "version": "1.0.2",
   "description": "A wrapper for tickety's post api !",
+  "type": "commonjs",
   "main": "./build/index.js",
   "module": "./build/index.mjs",
   "types": "./build/index.d.ts",
@@ -9,6 +10,9 @@
     "types": "./build/index.d.ts",
     "import": "./build/index.mjs",
     "require": "./build/index.js"
+  },
+  "scripts": {
+    "build": "node ./build.js"
   },
   "files": [
     "build",
@@ -26,5 +30,8 @@
   "bugs": {
     "url": "https://github.com/Its0xyToan/tickety-api/issues"
   },
-  "homepage": "https://github.com/Its0xyToan/tickety-api#readme"
+  "homepage": "https://github.com/Its0xyToan/tickety-api#readme",
+  "devDependencies": {
+    "rollup": "^4.40.0"
+  }
 }
