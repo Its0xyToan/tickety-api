@@ -12,128 +12,123 @@ class Events {
     static Debug = "debug"
 }
 
-class Priorities {
-    static High = "high"
-    static Medium = "medium"
-    static Low = "low"
-}
+const priorityChange = (priority) => {
+  return {
+    number: priority,
+    toString: () => {
+      if (priority === 1) {
+        return "high";
+      } else if (priority === 2) {
+        return "medium";
+      } else if (priority === 3) {
+        return "low";
+      }
+      return "none";
+    },
+  };
+};
 
-/*
-    {
-        "customURL":"https://ticketywebhook.requestcatcher.com",
-        "guildId":"1161743005082992731",
-        "guildName":"Tickety Training",
-        "channelId":"1161743005082992734",
-        "userId":"503282932241268736",
-        "userName":"notdemonix",
-        "panel":"Support",
-        "type":"create",
-        "openDate":1706717176563
-    }
-*/
+class Parserv3 {
+  body;
 
+  constructor(body) {
+    this.body = body;
+  }
 
-class Parser {
-    data;
-    parsed = {};
+  eventRegistry = {
+    "ticket.create": Events.Create,
+    "ticket.close": Events.Close,
+    "ticket.rename": Events.Rename,
+    "ticket.priority": Events.Priority,
+  };
 
-    constructor(data) {
-        this.data = data;
-        if(!data.type) return new Error("Unable to parse data because type is unexistant.");
-    }
+  work() {
+    const event = this.body["event"];
+    const payload = this.body["payload"];
 
-    work () {
-        this.defaultParse();
-        switch(this.data.type) {
-            case Events.Create: this.parseCreate(); break;
-            case Events.Close: this.parseClose(); break;
-            case Events.Priority: this.parsePriority(); break;
-            case Events.Rename: this.parseRename(); break;
-        }
-
-        return this.parsed
+    if (!event || !payload) {
+      throw new Error("Invalid body (Using v3)");
     }
 
-    defaultParse() {
-        this.parsed = {
-            guild: {
-                id: this.data["guildId"],
-                name: this.data["guildName"]
-            },
-            channel: {
-                id: this.data["channelId"]
-            },
-            user: {
-                id: this.data["userId"],
-                name: this.data["userName"]
-            },
-            panel: this.data["panel"]
+    let internalEvent = this.eventRegistry[event];
+    if (!internalEvent) {
+      throw new Error(`Unknown event: ${event}`);
+    }
+
+    switch (internalEvent) {
+      case Events.Priority:
+        return {
+          type: internalEvent,
+          payload: this.parsePriority(payload),
+        };
+      default:
+        return {
+          type: internalEvent,
+          payload: payload,
         };
     }
+  }
 
-    parseCreate () {
-        this.parsed["type"] = Events.Create;
-        this.parsed["openTimestamp"] = this.data["openDate"];
-    }
-
-    parseClose () {
-        this.parsed["type"] = Events.Close;
-    }
-
-    parseRename () {
-        this.parsed["type"] = Events.Rename;
-        this.parsed["newName"] = this.data["newName"];
-    }
-
-    parsePriority () {
-        this.parsed["type"] = Events.Priority;
-        this.parsed["priority"] = this.data["priority"] === 1 ?
-            Priorities.High : this.data["priority"] === 2 ?
-                    Priorities.Medium : Priorities.Low;
-    }
+  parsePriority = (payload) => {
+    payload["newPriority"] = priorityChange(payload["newPriority"]);
+    payload["oldPriority"] = priorityChange(payload["oldPriority"]);
+    return payload;
+  };
 }
 
 /**
- * @typedef {object} ClientConfig;
- * @property {number?} port;
+ * @type {import("./index.d.ts").TicketyClient}
  */
-
-
 let TicketyClient$1 = class TicketyClient extends node_events.EventEmitter {
-    /** @type {ClientConfig} */
-    config;
-    /** @type {import("express").Express} */
-    app;
+  config;
+  /** @type {import("express").Express} */
+  app;
 
-    /**
-     * Creates a new Tickety Client !
-     * @param {ClientConfig} config
-     */
-    constructor(config) {
-        super();
-        this.config = config;
-    }
+  /**
+   * Creates a new Tickety Client !
+   * @param {import("./index.d.ts").Config} config
+   */
+  constructor(config) {
+    super();
+    this.config = config;
+  }
 
+  listen() {
+    if (!this.config.port) this.config.port = 3000;
 
-    listen () {
-        if(!this.config.port) this.config.port = 3000;
+    this.app = express();
+    this.app.use(express.json());
 
-        this.app = express();
-        this.app.use(express.json());
+    this.app.post(`/${this.config.route ?? ""}`, (req, res) => {
+      if (!req.body)
+        return res
+          .status(400)
+          .json({ error: true, message: "Invalid form body, nice try bud" });
 
-        this.app.post("/tickety", (req, res) => {
-            if(!req.body) return res.status(400).json({ code: 400, error: true, message: "Invalid form body" });
-            
-            const parsed = new Parser(req.body).work();
-            this.emit(parsed.type, parsed);
-            this.emit(Events.Debug, req.body, parsed);
-            res.status(200).json({ code: 200, error: false });
-        });
+      if (req.headers.authorization !== this.config.key) {
+        return res
+          .status(401)
+          .json({ error: true, message: "Unauthorized, still nice try bud" });
+      }
 
-        this.app.listen(this.config.port, () => {
-            this.emit(Events.Ready, this.config.port);
-        });
-    }
+      const parsed = new Parserv3(req.body).work();
+
+      this.emit(parsed.type, parsed.payload);
+      this.emit(Events.Debug, req.body, parsed.payload);
+
+      res.status(200).json({
+        error: false,
+        message: "Hey from Tickety JS wrapper !",
+      });
+    });
+
+    this.app.listen(this.config.port, () => {
+      this.emit(Events.Ready, {
+        port: this.config.port || 3000,
+        route: "0.0.0.0/" + this.config.route ?? "",
+      });
+    });
+  }
 };
 
 const TicketyClient = TicketyClient$1;
