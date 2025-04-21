@@ -21,8 +21,7 @@
     "url": "git+https://github.com/Its0xyToan/tickety-api.git"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "tiny-typed-emitter": "^2.1.0"
+    "express": "^4.19.2"
   },
   "bugs": {
     "url": "https://github.com/Its0xyToan/tickety-api/issues"
