@@ -64,25 +64,34 @@ export interface ClientEvents {
   close: [ticket: ClosePayload];
 }
 
+interface Config {
+  route?: string;
+  key: string;
+  port: number;
+}
+
 /**
  * TicketyClient listens to ticket-related events on a specific port
  */
 export class TicketyClient extends EventEmitter {
   private app: Application;
   private port: number;
+  public config: Config;
 
-  constructor(config?: { route?: string });
+  constructor(config: Config);
 
   /**
    * Start an Express server to listen for incoming ticket events
    * @param port - Port number to listen on
    * @returns true if the server started successfully
    */
-  public listen(port: number): Promise<boolean>;
+  public listen(): Promise<boolean>;
 }
 
 declare module "node:events" {
   interface EventEmitter {
+    private emit(event: string | symbol, ...args: any[]): boolean;
+
     /**
      * Await a single occurrence of a typed event from TicketyClient
      */
