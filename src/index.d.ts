@@ -67,7 +67,23 @@ export interface ClientEvents {
 interface Config {
   route?: string;
   key: string;
-  port: number;
+  port?: number;
+}
+
+/**
+ * Request options for handleRequest method
+ */
+interface RequestOptions {
+  body: any;
+  headers: Record<string, string>;
+}
+
+/**
+ * Response from handleRequest method
+ */
+interface RequestResponse {
+  status: number;
+  payload: Record<string, any>;
 }
 
 /**
@@ -81,16 +97,34 @@ export class TicketyClient extends EventEmitter {
   constructor(config: Config);
 
   /**
-   * Start an Express server to listen for incoming ticket events
-   * @param port - Port number to listen on
-   * @returns true if the server started successfully
+   * Handles incoming Tickety webhook requests
+   * @param options - Request handling options
+   * @returns Response object with status and payload
    */
-  public listen(): Promise<boolean>;
+  public handleRequest(options: RequestOptions): RequestResponse;
+
+  /**
+   * Creates an Express route handler for Tickety webhooks
+   * @returns Express middleware function
+   */
+  public createExpressHandler(): (req: any, res: any) => any;
+
+  /**
+   * Creates a handler function that can be used with any HTTP framework
+   * @returns Generic handler that takes request data and returns a response
+   */
+  public createHandler(): (options: RequestOptions) => RequestResponse;
+
+  /**
+   * Start an Express server to listen for incoming ticket events
+   * @returns Express application instance
+   */
+  public listen(): Application;
 }
 
 declare module "node:events" {
   interface EventEmitter {
-    private emit(event: string | symbol, ...args: any[]): boolean;
+    emit(event: string | symbol, ...args: any[]): boolean;
 
     /**
      * Await a single occurrence of a typed event from TicketyClient
