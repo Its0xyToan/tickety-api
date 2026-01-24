@@ -10,6 +10,7 @@ let queue = [];
 files.forEach((a) => {
   queue.push(
     new Promise((resolve) => {
+		console.log(`Working on ${a.input} - ${a.output}`);
       rollup
         .rollup({
           input: {
