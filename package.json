@@ -12,7 +12,8 @@
         "require": "./build/index.js"
     },
     "scripts": {
-        "build": "node ./build.js"
+        "build": "npm run rollup src/index.js -o build/index.cjs -f cjs && npm run rollup src/index.js -o build/index.mjs -f esm && cp ./src/index.d.ts ./build",
+        "rollup": "rollup"
     },
     "files": [
         "build",
