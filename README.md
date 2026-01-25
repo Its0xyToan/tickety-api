@@ -1,21 +1,23 @@
 # Tickety Api 🎫
-
-A wrapper for [Tickety](https://tickety.top)'s POST api !
+A wrapper for [Tickety](https://tickety.top)'s POST api.
 
 ## Installation ➕
-
-Install this project with npm !
+Install this project with npm, pnpm or yarn
 
 ```bash
   npm install tickety-api
+  // or
+  pnpm add tickety-api
+  // or 
+  yarn add tickety-api
 ```
     
 ## Features 🚀
 
-- Listener using express 🧏‍♂️
-- Type definition 📜
-- Supports ESM and CJS 🥈
-- Adapters for existing web servers 🔌
+- 🎧 Listener using express
+- 🪶 Type definition
+- ➕ Supports ESM and CJS
+- 🧬 Adapters for existing web servers
 
 
 ## Documentation ❓
@@ -36,28 +38,40 @@ const tickety = new TicketyClient({
 })
 
 // Listen to an event
-tickety.on("ready", (port) => { // On ready !
-    console.log("Listening on port " + port + " and on \"http://localhost:" + port + "/tickety\"")
+tickety.once("ready", (ready) => { // On ready !
+    console.log(`Listening on port ${ready.port} and on "http://localhost:${ready.port}/tickety"`)
 })
 
-tickety.on("create", (ticket) => { // When a ticket is created
-    console.log(ticket)
-    /*
-        {
-            guild: { id: '10243432342992731', name: 'My Server' },
-            channel: { id: '1161743005082992734' },
-            user: { id: '713115896805064856', name: 'oxytoan' },
-            panel: 'Support',
-            type: 'create',
-            openTimestamp: 1706717176563 // Only on create event !
-        }
-    */
+// "ticket.create" can be other events like
+tickety.on("ticket.create", (create) => { // When a ticket is created
+    console.log(create)
 })
 
-// Here are all the events disponible:
-tickety.on("close", (ticket) => {})
-tickety.on("rename", (ticket) => {}) // has a "newName" field !
-tickety.on("priority", (ticket) => {}) // has a "priority" field that can be "high", "medium", or "low" !
+// -- Other Events:
+// Client / System
+"ready"
+
+// Ticket Events
+"ticket.create"
+"ticket.close"
+"ticket.rename"
+"ticket.priority"
+"ticket.move"
+"ticket.transfer"
+"ticket.claim"
+"ticket.unclaim"
+"ticket.add"
+"ticket.remove"
+
+// Application Events
+"application.submit"
+"application.accept"
+"application.deny"
+
+// Verification Events
+"verification.pass"
+"verification.fail"
+// --
 
 tickety.listen() // Let's listen to the port plus /tickety
 // This means that the full api will be
@@ -121,7 +135,7 @@ fastify.post('/webhook/tickety', (request, reply) => {
 });
 
 // Listen for events
-tickety.on('create', (ticket) => {
+tickety.on('ticket.create', (ticket) => {
   console.log('New ticket created:', ticket);
 });
 
@@ -157,7 +171,7 @@ app.post('/webhook/tickety', async (c) => {
 });
 
 // Listen for events
-tickety.on('create', (ticket) => {
+tickety.on('ticket.create', (ticket) => {
   console.log('Ticket created:', ticket);
 });
 
@@ -205,7 +219,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 // Listen for events
-tickety.on('create', (ticket) => {
+tickety.on('ticket.create', (ticket) => {
   console.log('New ticket:', ticket);
 });
 
