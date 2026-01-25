@@ -20,8 +20,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
       - run: npm i -g rollup
-      - run: npm run rollup src/index.js -o build/index.cjs -f cjs
-      - run: npm run rollup src/index.js -o build/index.mjs -f esm
+      - run: rollup src/index.js -o build/index.cjs -f cjs
+      - run: rollup src/index.js -o build/index.mjs -f esm
       - run: cp ./src/index.d.ts ./build
       - run: npm run build --if-present
       - run: npm test
