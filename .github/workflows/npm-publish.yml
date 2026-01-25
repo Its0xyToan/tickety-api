@@ -3,32 +3,35 @@ name: Node.js Package
 on:
   release:
     types: [created]
-  workflow_dispatch:
+  workflow_dispatch: # This allows manual triggering of the workflow
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-      - run: npm i -g rollup
-      - run: rollup src/index.js -o build/index.cjs -f cjs
-      - run: rollup src/index.js -o build/index.mjs -f esm
-      - run: cp ./src/index.d.ts ./build
-
   publish-npm:
-    needs: build
     runs-on: ubuntu-latest
     steps:
+      # Check out the code
       - uses: actions/checkout@v4
+
+      # Set up Node.js
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+
+      # Install dependencies
       - run: npm ci
+
+      # Install rollup globally
+      - run: npm i -g rollup
+
+      # Build CJS and ESM files using Rollup
+      - run: rollup src/index.js -o build/index.cjs -f cjs
+      - run: rollup src/index.js -o build/index.mjs -f esm
+
+      # Copy TypeScript declaration file to build folder
+      - run: cp ./src/index.d.ts ./build
+
+      # Publish to npm
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
