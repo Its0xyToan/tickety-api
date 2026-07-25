@@ -36,6 +36,10 @@ export const enum Events {
   // Verification Events
   VerificationPass = "verification.pass",
   VerificationFail = "verification.fail",
+
+  // Join/Leave Events
+  MemberJoin = "member.join",
+  MemberLeave = "member.leave",
 }
 
 // Payloads Interfaces
@@ -60,9 +64,19 @@ export interface TicketPayload {
   createdAt: Date;
 }
 
+export interface UploadReference {
+  scope: "tickets" | "applications";
+  id: string;
+  filename: string;
+  url: string;
+  fetch({ format }: { format?: "default" | "json" }): Promise<Buffer>;
+}
+
 interface Question {
   question: string;
   answer: string;
+  required: boolean;
+  upload?: UploadReference;
 }
 
 export interface TicketCreatePayload extends TicketPayload {
@@ -128,6 +142,18 @@ export type AnyTicketPayload =
 
 // --- Application Category ---
 
+interface ApplicationQuestion {
+  question?: string;
+  description?: string | null;
+  required?: boolean;
+  type?: "TEXT" | "CHOICE" | "UPLOAD";
+  choices?: string[];
+  skipped?: boolean;
+  answer?: string | null;
+  answerRaw?: string | null;
+  upload?: UploadReference | null;
+}
+
 export interface ApplicationPayload {
   applicationId: string;
   panelId: string;
@@ -135,7 +161,9 @@ export interface ApplicationPayload {
   submittedAt: Date;
 }
 
-export interface ApplicationSubmitPayload extends ApplicationPayload {}
+export interface ApplicationSubmitPayload extends ApplicationPayload {
+  questions: ApplicationQuestion[];
+}
 
 export interface ApplicationAcceptPayload extends ApplicationPayload {
   reviewedBy: string; // User ID
@@ -172,6 +200,23 @@ export type AnyVerificationPayload =
   | VerificationPassPayload
   | VerificationFailPayload;
 
+// --- Join/Leave Category ---
+
+export interface MemberJoinPayload {
+  userId: string;
+  username: string;
+  joinedAt: Date;
+  memberCount: number;
+}
+
+export interface MemberLeavePayload {
+  userId: string;
+  username: string;
+  memberCount: number;
+}
+
+export type AnyMemberPayload = MemberJoinPayload | MemberLeavePayload;
+
 // ClientEvents Interface
 
 /**
@@ -201,6 +246,10 @@ export interface ClientEvents {
   // Verification
   [Events.VerificationPass]: [payload: VerificationPassPayload];
   [Events.VerificationFail]: [payload: VerificationFailPayload];
+
+  // Join/Leave
+  [Events.MemberJoin]: [payload: MemberJoinPayload];
+  [Events.MemberLeave]: [payload: MemberLeavePayload];
 }
 
 interface Config {

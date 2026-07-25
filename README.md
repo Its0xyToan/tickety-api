@@ -71,6 +71,10 @@ tickety.on("ticket.create", (create) => { // When a ticket is created
 // Verification Events
 "verification.pass"
 "verification.fail"
+
+// Join/Leave Events
+"member.join"
+"member.leave"
 // --
 
 tickety.listen() // Let's listen to the port plus /tickety
@@ -78,9 +82,11 @@ tickety.listen() // Let's listen to the port plus /tickety
 // localhost:3000/tickety
 ```
 
+## 
+
 ## Using with Existing Web Servers 🔌
 
-Tickety now supports integration with existing web servers via adapters!
+tickety-api supports integration with existing web servers via adapters!
 
 <details>
 <summary>Express Example</summary>

@@ -46,7 +46,7 @@ export default class TicketyClient extends EventEmitter {
       };
     }
 
-    const parsed = parseBody(body);
+    const parsed = parseBody(body, this.config);
 
     this.emit(parsed.event, parsed.payload);
 
