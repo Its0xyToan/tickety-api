@@ -42,7 +42,7 @@ tickety.once("ready", (ready) => { // On ready !
     console.log(`Listening on port ${ready.port} and on "http://localhost:${ready.port}/tickety"`)
 })
 
-// "ticket.create" can be other events like
+// "ready" can be other events like
 tickety.on("ticket.create", (create) => { // When a ticket is created
     console.log(create)
 })
@@ -82,7 +82,15 @@ tickety.listen() // Let's listen to the port plus /tickety
 // localhost:3000/tickety
 ```
 
-## 
+## Upload Reference
+When an user uploads a file in a form (ticket creation or application submit) Tickety gives an Upload Reference Object, to fetch this file, a method has been added to the upload object in the needed events.
+```javascript
+tickety.on("application.submit", async (application) => { // When a ticket is created
+   const firstQuestionImageBuffer = await application.questions[0].upload.fetch() // Returns Buffer
+   // If you want to use the attachment in a Discord Embed or on another service, you can get the URL of the file
+   const firstQuestionImageUrl = await application.questions[0].upload.fetch({ format: "json" })
+})
+```
 
 ## Using with Existing Web Servers 🔌
 
